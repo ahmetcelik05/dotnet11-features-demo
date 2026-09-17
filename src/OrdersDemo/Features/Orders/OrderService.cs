@@ -7,16 +7,12 @@ namespace OrdersDemo.Features.Orders;
 /// Produces activities from an <see cref="ActivitySource"/> created through the .NET 11
 /// <see cref="ActivitySourceFactory"/>. Which activities are recorded is decided by tracing rules, not here.
 /// </summary>
-internal sealed class OrderService : IOrderService
+internal sealed class OrderService(ActivitySourceFactory activitySourceFactory) : IOrderService
 {
     private static readonly TimeSpan SimulatedProcessingTime = TimeSpan.FromMilliseconds(10);
 
-    private readonly ActivitySource _activitySource;
-
-    public OrderService(ActivitySourceFactory activitySourceFactory)
-    {
-        _activitySource = activitySourceFactory.Create(new ActivitySourceOptions(TracingSources.Orders));
-    }
+    private readonly ActivitySource _activitySource =
+        activitySourceFactory.Create(new ActivitySourceOptions(TracingSources.Orders));
 
     public async Task<string> PlaceOrderAsync(CreateOrderRequest request, CancellationToken cancellationToken)
     {
